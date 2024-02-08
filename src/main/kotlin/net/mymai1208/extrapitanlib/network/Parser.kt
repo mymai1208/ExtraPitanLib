@@ -1,29 +1,18 @@
 package net.mymai1208.extrapitanlib.network
 
 import ml.pkom.mcpitanlibarch.api.network.PacketByteUtil
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
 import net.mymai1208.extrapitanlib.ExtraPitanLib
 import net.mymai1208.extrapitanlib.network.annotation.NetworkingPacket
 import net.mymai1208.extrapitanlib.network.annotation.UnlimitedNBT
-import net.mymai1208.extrapitanlib.network.annotation.VariantValue
-import java.util.UUID
+import net.mymai1208.extrapitanlib.network.annotation.VariableValue
 import kotlin.reflect.*
 import kotlin.reflect.full.*
-import kotlin.reflect.jvm.isAccessible
 
 object Parser {
     inline fun <reified T : Any> parse(buffer: PacketByteBuf): T? {
         if(!T::class.hasAnnotation<NetworkingPacket>()) {
-            return null
-        }
-
-        if(!T::class.isData) {
             return null
         }
 
@@ -36,11 +25,7 @@ object Parser {
         val constructorParams: MutableList<Any> = mutableListOf()
 
         for (parameter in constructor.parameters) {
-            if(parameter !is KMutableProperty<*>) {
-                continue
-            }
-
-            val returnType = parameter.returnType
+            val returnType = parameter.type
 
             //データが複雑じゃなければ次のパラメータに
             val simpleValue = readValue(parameter, buffer)
@@ -51,25 +36,25 @@ object Parser {
             }
 
             //Check Unlimited NBT
-            if(parameter.hasAnnotation<UnlimitedNBT>() && returnType.isSupertypeOf(NbtElement::class.starProjectedType)) {
+            if(parameter.hasAnnotation<UnlimitedNBT>() && returnType.isSubtypeOf(NbtElement::class.starProjectedType)) {
                 constructorParams.add(PacketByteUtil.readUnlimitedNbt(buffer))
 
                 continue
             }
 
             if(returnType.isSubtypeOf(Map::class.starProjectedType)) {
-                val keyClazz = returnType.arguments[0].type?.classifier ?: continue
-                val valueClazz = returnType.arguments[1].type?.classifier ?: continue
+                val keyClazz = returnType.arguments[0].type?.classifier as? KClass<*> ?: continue
+                val valueClazz = returnType.arguments[1].type?.classifier as? KClass<*> ?: continue
 
                 if(keyClazz != String::class) {
                     continue
                 }
 
-                if(PacketType.entries.find { it.type == valueClazz } == null) {
+                if(PacketType.entries.none { it.type == valueClazz }) {
                     continue
                 }
 
-                val value = readValue(valueClazz as? KClass<*>, buffer) ?: continue
+                val value = readValue(keyClazz, buffer) ?: continue
 
                 constructorParams.add(value)
             }
@@ -85,20 +70,28 @@ object Parser {
         return instance
     }
 
-    fun readValue(property: KProperty<*>, buffer: PacketByteBuf): Any? {
+    fun readValue(parameter: KParameter, buffer: PacketByteBuf): Any? {
         //Check Serialized
-        if(property.hasAnnotation<VariantValue>()) {
-            return when(property.returnType.classifier) {
+        if(parameter.hasAnnotation<VariableValue>()) {
+            return when(parameter.type.classifier) {
                 Int::class -> PacketByteUtil.readVarInt(buffer)
                 Long::class -> PacketByteUtil.readVarLong(buffer)
                 else -> null
             }
         }
 
-        return readValue(property.returnType.classifier as? KClass<*>, buffer)
+        val clazz = parameter.type.classifier as? KClass<*> ?: return null
+
+        return readValue(clazz, buffer)
     }
 
-    fun readValue(clazz: KClass<*>?, buffer: PacketByteBuf): Any? {
-        return PacketType.entries.find { it.type == clazz }?.let { it.function(buffer) }
+    fun readValue(clazz: KClass<*>, buffer: PacketByteBuf): Any? {
+        try {
+            return PacketType.entries.find { it.type == clazz }?.let { it.function(buffer) }
+        } catch (e: Exception) {
+            ExtraPitanLib.LOGGER.warn("Failed to read value of type ${clazz.simpleName}")
+        }
+
+        return null
     }
 }
