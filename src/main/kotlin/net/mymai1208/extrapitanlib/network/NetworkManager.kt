@@ -12,16 +12,16 @@ import kotlin.reflect.*
 import kotlin.reflect.full.*
 
 object NetworkManager {
-    inline fun <reified T : Any> parse(buffer: PacketByteBuf): T? {
-        if(!T::class.hasAnnotation<NetworkingPacket>()) {
+    fun <T : Any> parse(targetClazz: KClass<T>, buffer: PacketByteBuf): T? {
+        if(!targetClazz.hasAnnotation<NetworkingPacket>()) {
             return null
         }
 
-        if(T::class.primaryConstructor == null) {
+        if(targetClazz.primaryConstructor == null) {
             return null
         }
 
-        val constructor = T::class.primaryConstructor!!
+        val constructor = targetClazz.primaryConstructor!!
 
         val constructorParams: MutableList<Any> = mutableListOf()
 
@@ -35,7 +35,7 @@ object NetworkManager {
             }
 
             //データが複雑じゃなければ次のパラメータに
-            val simpleValue = readValue(parameter, buffer)
+            val simpleValue = this.readValue(parameter, buffer)
             if(simpleValue != null) {
                 constructorParams.add(simpleValue)
 
@@ -75,7 +75,11 @@ object NetworkManager {
         return instance
     }
 
-    fun readValue(parameter: KParameter, buffer: PacketByteBuf): Any? {
+    inline fun <reified T : Any> parse(buffer: PacketByteBuf): T? {
+        return parse(T::class, buffer)
+    }
+
+    private fun readValue(parameter: KParameter, buffer: PacketByteBuf): Any? {
         //Check Serialized
         if(parameter.hasAnnotation<VariableValue>()) {
             return when(parameter.type.classifier) {
@@ -90,7 +94,7 @@ object NetworkManager {
         return readValue(clazz, buffer)
     }
 
-    fun readValue(clazz: KClass<*>, buffer: PacketByteBuf): Any? {
+    private fun readValue(clazz: KClass<*>, buffer: PacketByteBuf): Any? {
         try {
             return PacketType.entries.find { it.type == clazz }?.let { it.function(buffer) }
         } catch (e: Exception) {
