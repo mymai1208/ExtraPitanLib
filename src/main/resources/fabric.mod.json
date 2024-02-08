@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "extrapitanlib",
+  "version": "${version}",
+  "name": "ExtraPitanLib",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "mymai1208"
+  ],
+  "license": "MIT",
+  "icon": "assets/extrapitanlib/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.mymai1208.extrapitanlib.ExtraPitanLib"
+      }
+    ]
+  },
+  "depends": {
+    "fabric-language-kotlin": "${fabric_kotlin_version}",
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": ["1.18.2"],
+    "java": ">=17"
+  }
+}
