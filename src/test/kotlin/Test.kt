@@ -1,9 +1,10 @@
 import ml.pkom.mcpitanlibarch.api.network.PacketByteUtil
-import net.mymai1208.extrapitanlib.network.Parser
+import net.minecraft.nbt.NbtCompound
+import net.mymai1208.extrapitanlib.network.NetworkManager
 
 fun main() {
     val packet = PacketByteUtil.create()
-    packet.writeVarInt(1)
+    packet.writeMap(mapOf("test" to "aaa"), PacketByteUtil::writeString, PacketByteUtil::writeString)
 
-    println(Parser.parse<TestPacket>(packet))
+    println(NetworkManager.parse<TestPacket>(packet))
 }

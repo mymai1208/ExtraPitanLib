@@ -7,10 +7,11 @@ import net.mymai1208.extrapitanlib.ExtraPitanLib
 import net.mymai1208.extrapitanlib.network.annotation.NetworkingPacket
 import net.mymai1208.extrapitanlib.network.annotation.UnlimitedNBT
 import net.mymai1208.extrapitanlib.network.annotation.VariableValue
+import org.jetbrains.annotations.Nullable
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
-object Parser {
+object NetworkManager {
     inline fun <reified T : Any> parse(buffer: PacketByteBuf): T? {
         if(!T::class.hasAnnotation<NetworkingPacket>()) {
             return null
@@ -26,6 +27,12 @@ object Parser {
 
         for (parameter in constructor.parameters) {
             val returnType = parameter.type
+            val returnClazz = returnType.classifier as? KClass<*> ?: continue
+
+            if(!returnType.isMarkedNullable && !parameter.hasAnnotation<Nullable>()) {
+                ExtraPitanLib.LOGGER.warn("${parameter.name} is not nullable")
+                continue
+            }
 
             //データが複雑じゃなければ次のパラメータに
             val simpleValue = readValue(parameter, buffer)
@@ -35,14 +42,18 @@ object Parser {
                 continue
             }
 
-            //Check Unlimited NBT
-            if(parameter.hasAnnotation<UnlimitedNBT>() && returnType.isSubtypeOf(NbtElement::class.starProjectedType)) {
-                constructorParams.add(PacketByteUtil.readUnlimitedNbt(buffer))
+            if(returnClazz.isSubclassOf(NbtElement::class)) {
+                if(parameter.hasAnnotation<UnlimitedNBT>()) {
+                    constructorParams.add(PacketByteUtil.readUnlimitedNbt(buffer))
+                }
+                else {
+                    constructorParams.add(PacketByteUtil.readNbt(buffer))
+                }
 
                 continue
             }
 
-            if(returnType.isSubtypeOf(Map::class.starProjectedType)) {
+            if(returnClazz.isSubclassOf(Map::class)) {
                 val keyClazz = returnType.arguments[0].type?.classifier as? KClass<*> ?: continue
                 val valueClazz = returnType.arguments[1].type?.classifier as? KClass<*> ?: continue
 
@@ -50,18 +61,12 @@ object Parser {
                     continue
                 }
 
-                if(PacketType.entries.none { it.type == valueClazz }) {
-                    continue
-                }
+                //Valueの型がパケットに使用出来るか確認
+                val valueType = PacketType.entries.find { it.type == valueClazz } ?: continue
 
-                val value = readValue(keyClazz, buffer) ?: continue
+                val map = PacketByteUtil.readMap(buffer, PacketType.String.function, valueType.function) ?: continue
 
-                constructorParams.add(value)
-            }
-
-            if(!returnType.isMarkedNullable) {
-                ExtraPitanLib.LOGGER.warn("${parameter.name} is not nullable")
-                continue
+                constructorParams.add(map)
             }
         }
 
