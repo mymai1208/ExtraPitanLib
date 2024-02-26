@@ -1,18 +1,17 @@
 package net.mymai1208.extrapitanlib.builder
 
-import ml.pkom.mcpitanlibarch.api.block.ExtendBlockEntityProvider
-import net.minecraft.block.AbstractBlock.Settings
-import net.minecraft.block.Block
-import net.minecraft.block.BlockWithEntity
-import net.minecraft.block.Material
 import net.minecraft.util.Identifier
+import net.pitan76.mcpitanlib.api.block.CompatibleBlockSettings
+import net.pitan76.mcpitanlib.api.block.CompatibleMaterial
+import net.pitan76.mcpitanlib.api.block.ExtendBlock
+import net.pitan76.mcpitanlib.api.block.ExtendBlockEntityProvider
 
-class BlockBuilder(material: Material, modId: String, id: String) : BasicBuilder {
-    private var settings = Settings.of(material)
+class BlockBuilder(material: CompatibleMaterial, modId: String, id: String) : BasicBuilder {
+    private var settings = CompatibleBlockSettings.of(material)
     private var blockEntity: ExtendBlockEntityProvider? = null
     private val id: Identifier = Identifier(modId, id)
 
-    fun settings(lambda: Settings.() -> Unit): BlockBuilder {
+    fun settings(lambda: CompatibleBlockSettings.() -> Unit): BlockBuilder {
         settings.apply(lambda)
 
         return this
@@ -24,11 +23,11 @@ class BlockBuilder(material: Material, modId: String, id: String) : BasicBuilder
         return this
     }
 
-    fun build(): Block {
+    fun build(): ExtendBlock {
         return if(blockEntity == null) {
-            Block(settings)
+            ExtendBlock(settings)
         } else {
-            object : Block(settings), ExtendBlockEntityProvider {
+            object : ExtendBlock(settings), ExtendBlockEntityProvider {
 
             }
         }

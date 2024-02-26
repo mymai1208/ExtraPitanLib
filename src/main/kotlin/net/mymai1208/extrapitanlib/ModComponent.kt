@@ -1,14 +1,14 @@
 package net.mymai1208.extrapitanlib
 
-import ml.pkom.mcpitanlibarch.api.client.registry.ArchRegistryClient
-import ml.pkom.mcpitanlibarch.api.registry.ArchRegistry
-import net.minecraft.block.Material
 import net.mymai1208.extrapitanlib.builder.BlockBuilder
+import net.pitan76.mcpitanlib.api.block.CompatibleMaterial
+import net.pitan76.mcpitanlib.api.client.registry.CompatRegistryClient
+import net.pitan76.mcpitanlib.api.registry.CompatRegistry
 
-class ModComponent(val modId: String, val REGISTRY: ArchRegistry? = null, val CLIENT_REGISTRY: ArchRegistryClient? = null) {
+class ModComponent(val modId: String, val REGISTRY: CompatRegistry? = null, val CLIENT_REGISTRY: CompatRegistryClient? = null) {
     private val blocks = mutableListOf<BlockBuilder>()
 
-    fun createBlock(id: String, material: Material, lambda: BlockBuilder.() -> Unit) {
+    fun createBlock(id: String, material: CompatibleMaterial, lambda: BlockBuilder.() -> Unit) {
         blocks.add(BlockBuilder(material, modId, id).apply(lambda))
     }
 

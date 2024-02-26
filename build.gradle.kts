@@ -2,6 +2,8 @@ plugins {
     java
     kotlin("jvm") version "1.9.22"
     id("fabric-loom") version "1.4-SNAPSHOT"
+    kotlin("plugin.serialization") version("1.9.22")
+    id("com.google.devtools.ksp") version "1.9.21-1.0.15"
 }
 
 val mod_version: String by project
@@ -22,6 +24,7 @@ repositories {
     maven("https://maven.pitan76.net/")
     maven( "https://maven.shedaniel.me/")
     maven("https://maven.architectury.dev/")
+    maven("https://maven.mymai1208.net/")
 }
 
 dependencies {
@@ -32,7 +35,10 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}")
 
-    modImplementation("ml.pkom:mcpitanlibarch-fabric+${mcpitanlib_version}")
+    modImplementation("net.pitan76:mcpitanlib-fabric+${mcpitanlib_version}")
+
+    modImplementation("net.mymai1208:mc-serializer-mod:0.0.3")
+    ksp("net.mymai1208:mc-serializer:0.0.3")
 }
 
 tasks {
