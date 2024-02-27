@@ -13,12 +13,12 @@ internal open class BlockEntityBase(val builder: BlockEntityBuilder, blockEntity
     override fun writeNbtOverride(nbt: NbtCompound) {
         super.writeNbtOverride(nbt)
 
-        readNbtLambda?.let { it(builder, nbt) }
+        writeNbtLambda?.let { it(builder, nbt) }
     }
 
     override fun readNbtOverride(nbt: NbtCompound?) {
         super.readNbtOverride(nbt)
 
-        writeNbtLambda?.let { it(builder, nbt!!) }
+        readNbtLambda?.let { it(builder, nbt!!) }
     }
 }
