@@ -60,7 +60,8 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
             val blockEntity = registry?.registerBlockEntityType(builder.getIdentifier()) {
                 BlockEntityTypeBuilder.create(
                     { builder.build(registeredBlockEntities[builder.getIdentifier()]!!, it) },
-                    *blocks.toTypedArray()).build()
+                    *blocks.toTypedArray()
+                ).build()
             }?.orNull ?: throw Exception("Failed to register block entity")
 
             registeredBlockEntities[builder.getIdentifier()] = blockEntity

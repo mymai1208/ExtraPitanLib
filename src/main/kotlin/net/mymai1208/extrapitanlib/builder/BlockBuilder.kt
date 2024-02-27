@@ -12,6 +12,7 @@ import net.pitan76.mcpitanlib.api.block.ExtendBlockEntityProvider
 class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<ExtendBlock> {
     private var settings: CompatibleBlockSettings = CompatibleBlockSettings.of(CompatibleMaterial.STONE)
     private var blockEntityId: Identifier? = null
+    private var isTick: Boolean = false
     private val id: Identifier = Identifier(modComponent.modId, id)
 
     fun settings(lambda: CompatibleBlockSettings.() -> Unit): BlockBuilder {
@@ -22,6 +23,12 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
 
     fun settings(material: CompatibleMaterial, lambda: CompatibleBlockSettings.() -> Unit): BlockBuilder {
         settings = CompatibleBlockSettings.of(material).apply(lambda)
+
+        return this
+    }
+
+    fun useTick(): BlockBuilder {
+        isTick = true
 
         return this
     }
@@ -52,6 +59,10 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
         return object : ExtendBlock(settings), ExtendBlockEntityProvider {
             override fun <T : BlockEntity> getBlockEntityType(): BlockEntityType<T> {
                 return modComponent.registeredBlockEntities[blockEntityId] as? BlockEntityType<T> ?: throw Exception("BlockEntity not found")
+            }
+
+            override fun isTick(): Boolean {
+                return this@BlockBuilder.isTick
             }
         }
     }
