@@ -42,11 +42,11 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
 
     fun registerBlockItem(blockItemBuilder: (BlockItemBuilder.() -> Unit)? = null): BlockBuilder {
         if(blockItemBuilder == null) {
-            modComponent.builders.add(BlockItemBuilder(modComponent, id.path))
+            modComponent.builders.add(BlockItemBuilder(modComponent, id))
             return this
         }
 
-        modComponent.builders.add(BlockItemBuilder(modComponent, id.path).apply(blockItemBuilder))
+        modComponent.builders.add(BlockItemBuilder(modComponent, id).apply(blockItemBuilder))
 
         return this
     }

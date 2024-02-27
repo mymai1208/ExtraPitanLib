@@ -29,6 +29,13 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
         return { registeredBlockEntities[builder.getIdentifier()] }
     }
 
+    fun createItem(id: String, lambda: ItemBuilderImpl.() -> Unit): () -> Item? {
+        val builder = ItemBuilderImpl(this, id).apply(lambda)
+        builders.add(builder)
+
+        return { registeredItems[builder.getIdentifier()] }
+    }
+
     private fun registerBlocks() {
         builders.filterIsInstance<BlockBuilder>().forEach {
             val block = registry?.registerBlock(it.getIdentifier(), it::build)?.orNull ?: throw Exception("Failed to register block")

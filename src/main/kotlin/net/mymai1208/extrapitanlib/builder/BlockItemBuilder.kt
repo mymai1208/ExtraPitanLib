@@ -5,10 +5,8 @@ import net.mymai1208.extrapitanlib.ModComponent
 import net.pitan76.mcpitanlib.api.item.CompatibleItemSettings
 import net.pitan76.mcpitanlib.api.item.ExtendBlockItem
 
-class BlockItemBuilder(val modComponent: ModComponent, val id: String) : BasicBuilder<ExtendBlockItem>, ItemBuilder<BlockItemBuilder> {
+class BlockItemBuilder(val modComponent: ModComponent, val identifier: Identifier) : BasicBuilder<ExtendBlockItem>, ItemBuilder<BlockItemBuilder> {
     private var settings = CompatibleItemSettings()
-    private val identifier: Identifier = Identifier(modComponent.modId, id)
-
     override fun getIdentifier(): Identifier {
         return identifier
     }

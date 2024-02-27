@@ -1,6 +1,7 @@
 package net.mymai1208.extrapitanlib
 
 import net.fabricmc.api.ModInitializer
+import net.minecraft.item.ItemGroup
 import net.pitan76.mcpitanlib.api.block.CompatibleMaterial
 import net.pitan76.mcpitanlib.api.registry.CompatRegistry
 import org.apache.logging.log4j.LogManager
@@ -18,7 +19,17 @@ object ExtraPitanLib : ModInitializer {
                 requiresTool()
             }
 
-            registerBlockItem()
+            registerBlockItem {
+                settings {
+                    addGroup(ItemGroup.REDSTONE)
+                }
+            }
+        }
+
+        test.createItem("test_item") {
+            settings {
+                addGroup(ItemGroup.REDSTONE)
+            }
         }
 
         test.registerAll()
