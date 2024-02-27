@@ -1,39 +1,66 @@
 package net.mymai1208.extrapitanlib.builder
 
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.util.Identifier
+import net.mymai1208.extrapitanlib.ModComponent
 import net.pitan76.mcpitanlib.api.block.CompatibleBlockSettings
 import net.pitan76.mcpitanlib.api.block.CompatibleMaterial
 import net.pitan76.mcpitanlib.api.block.ExtendBlock
 import net.pitan76.mcpitanlib.api.block.ExtendBlockEntityProvider
 
-class BlockBuilder(material: CompatibleMaterial, modId: String, id: String) : BasicBuilder {
-    private var settings = CompatibleBlockSettings.of(material)
-    private var blockEntity: ExtendBlockEntityProvider? = null
-    private val id: Identifier = Identifier(modId, id)
+class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<ExtendBlock> {
+    private var settings: CompatibleBlockSettings = CompatibleBlockSettings.of(CompatibleMaterial.STONE)
+    private var blockEntityId: Identifier? = null
+    private val id: Identifier = Identifier(modComponent.modId, id)
 
     fun settings(lambda: CompatibleBlockSettings.() -> Unit): BlockBuilder {
-        settings.apply(lambda)
+        settings = settings.apply(lambda)
 
         return this
     }
 
-    fun blockEntity(lambda: ExtendBlockEntityProvider.() -> Unit): BlockBuilder {
-        blockEntity = object : ExtendBlockEntityProvider { }.apply(lambda)
+    fun settings(material: CompatibleMaterial, lambda: CompatibleBlockSettings.() -> Unit): BlockBuilder {
+        settings = CompatibleBlockSettings.of(material).apply(lambda)
 
         return this
     }
 
-    fun build(): ExtendBlock {
-        return if(blockEntity == null) {
-            ExtendBlock(settings)
-        } else {
-            object : ExtendBlock(settings), ExtendBlockEntityProvider {
+    fun blockEntity(id: String, lambda: BlockEntityBuilder.() -> Unit): BlockBuilder {
+        blockEntityId = Identifier(modComponent.modId, id)
+        modComponent.createBlockEntity(id, lambda)
 
+        return this
+    }
+
+    fun registerBlockItem(blockItemBuilder: (BlockItemBuilder.() -> Unit)? = null): BlockBuilder {
+        if(blockItemBuilder == null) {
+            modComponent.builders.add(BlockItemBuilder(modComponent, id.path))
+            return this
+        }
+
+        modComponent.builders.add(BlockItemBuilder(modComponent, id.path).apply(blockItemBuilder))
+
+        return this
+    }
+
+    override fun build(): ExtendBlock {
+        if(blockEntityId == null) {
+            return ExtendBlock(settings)
+        }
+
+        return object : ExtendBlock(settings), ExtendBlockEntityProvider {
+            override fun <T : BlockEntity> getBlockEntityType(): BlockEntityType<T> {
+                return modComponent.registeredBlockEntities[blockEntityId] as? BlockEntityType<T> ?: throw Exception("BlockEntity not found")
             }
         }
     }
 
     override fun getIdentifier(): Identifier {
         return id
+    }
+
+    fun getBlockEntityId(): Identifier? {
+        return blockEntityId
     }
 }

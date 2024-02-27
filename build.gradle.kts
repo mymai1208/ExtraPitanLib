@@ -2,8 +2,7 @@ plugins {
     java
     kotlin("jvm") version "1.9.22"
     id("fabric-loom") version "1.4-SNAPSHOT"
-    kotlin("plugin.serialization") version("1.9.22")
-    id("com.google.devtools.ksp") version "1.9.21-1.0.15"
+    id("com.google.devtools.ksp") version "1.9.22-1.0.17"
 }
 
 val mod_version: String by project
