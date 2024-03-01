@@ -1,4 +1,4 @@
-package net.mymai1208.extrapitanlib.builder
+package net.mymai1208.extrapitanlib.builder.impl
 
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.mymai1208.extrapitanlib.ModComponent
 import net.mymai1208.extrapitanlib.base.BlockEntityBase
+import net.mymai1208.extrapitanlib.builder.BasicBuilder
 import net.pitan76.mcpitanlib.api.event.block.TileCreateEvent
 import net.pitan76.mcpitanlib.api.event.tile.TileTickEvent
 import net.pitan76.mcpitanlib.api.tile.ExtendBlockEntity
@@ -19,6 +20,7 @@ class BlockEntityBuilder(val id: String, val modComponent: ModComponent) : Basic
     private var readNbtLambda: (BlockEntityBuilder.(NbtCompound) -> Unit)? = null
     private var writeNbtLambda: (BlockEntityBuilder.(NbtCompound) -> Unit)? = null
     private var tickLambda: ((world: World, pos: BlockPos, state: BlockState, blockEntity: BlockEntity) -> Unit)? = null
+
     fun build(blockEntityType: BlockEntityType<*>, event: TileCreateEvent): ExtendBlockEntity {
         if(tickLambda != null) {
             return createBlockEntityWithTicker(blockEntityType, event)

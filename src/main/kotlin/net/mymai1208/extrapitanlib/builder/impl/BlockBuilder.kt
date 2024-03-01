@@ -1,9 +1,10 @@
-package net.mymai1208.extrapitanlib.builder
+package net.mymai1208.extrapitanlib.builder.impl
 
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.util.Identifier
 import net.mymai1208.extrapitanlib.ModComponent
+import net.mymai1208.extrapitanlib.builder.BasicBuilder
 import net.pitan76.mcpitanlib.api.block.CompatibleBlockSettings
 import net.pitan76.mcpitanlib.api.block.CompatibleMaterial
 import net.pitan76.mcpitanlib.api.block.ExtendBlock

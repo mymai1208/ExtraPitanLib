@@ -4,7 +4,11 @@ import net.minecraft.block.Block
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.item.Item
 import net.minecraft.util.Identifier
-import net.mymai1208.extrapitanlib.builder.*
+import net.mymai1208.extrapitanlib.builder.BasicBuilder
+import net.mymai1208.extrapitanlib.builder.impl.BlockBuilder
+import net.mymai1208.extrapitanlib.builder.impl.BlockEntityBuilder
+import net.mymai1208.extrapitanlib.builder.impl.BlockItemBuilder
+import net.mymai1208.extrapitanlib.builder.impl.ItemBuilderImpl
 import net.pitan76.mcpitanlib.api.client.registry.CompatRegistryClient
 import net.pitan76.mcpitanlib.api.registry.CompatRegistry
 import net.pitan76.mcpitanlib.api.tile.BlockEntityTypeBuilder
@@ -15,7 +19,12 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
     internal val registeredBlocks = mutableMapOf<Identifier, Block>()
     internal val registeredBlockEntities = mutableMapOf<Identifier, BlockEntityType<*>>()
     internal val registeredItems = mutableMapOf<Identifier, Item>()
+
     fun createBlock(id: String, lambda: BlockBuilder.() -> Unit): () -> Block? {
+        if(builders.any { it.getIdentifier().path == id }) {
+            throw Exception("Block with id $id already exists")
+        }
+
         val builder = BlockBuilder(this, id).apply(lambda)
         builders.add(builder)
 
@@ -30,6 +39,10 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
     }
 
     fun createItem(id: String, lambda: ItemBuilderImpl.() -> Unit): () -> Item? {
+        if(builders.any { it.getIdentifier().path == id }) {
+            throw Exception("Item with id $id already exists")
+        }
+
         val builder = ItemBuilderImpl(this, id).apply(lambda)
         builders.add(builder)
 
