@@ -9,6 +9,8 @@ import net.pitan76.mcpitanlib.api.block.CompatibleBlockSettings
 import net.pitan76.mcpitanlib.api.block.CompatibleMaterial
 import net.pitan76.mcpitanlib.api.block.ExtendBlock
 import net.pitan76.mcpitanlib.api.block.ExtendBlockEntityProvider
+import net.pitan76.mcpitanlib.api.event.block.TileCreateEvent
+import net.pitan76.mcpitanlib.api.tile.ExtendBlockEntity
 
 class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<ExtendBlock> {
     private var settings: CompatibleBlockSettings = CompatibleBlockSettings.of(CompatibleMaterial.STONE)
@@ -34,9 +36,24 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
         return this
     }
 
-    fun blockEntity(id: String, lambda: BlockEntityBuilder.() -> Unit): BlockBuilder {
-        blockEntityId = Identifier(modComponent.modId, id)
-        modComponent.createBlockEntity(id, lambda)
+    fun blockEntity(id: String? = null, lambda: BlockEntityBuilderImpl.() -> Unit): BlockBuilder {
+        if(blockEntityId != null) {
+            throw Exception("BlockEntity already exists")
+        }
+
+        blockEntityId = Identifier(modComponent.modId, id ?: this.id.path)
+        modComponent.createBlockEntity(id ?: this.id.path, lambda)
+
+        return this
+    }
+
+    fun <T : ExtendBlockEntity> blockEntity(id: String? = null, lambda: (blockEntityType: BlockEntityType<*>, event: TileCreateEvent) -> T): BlockBuilder {
+        if(blockEntityId != null) {
+            throw Exception("BlockEntity already exists")
+        }
+
+        blockEntityId = Identifier(modComponent.modId, id ?: this.id.path)
+        modComponent.builders.add(CustomBlockEntityBuilder(modComponent, id ?: this.id.path, lambda))
 
         return this
     }

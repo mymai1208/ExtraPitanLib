@@ -2,7 +2,6 @@ plugins {
     java
     kotlin("jvm") version "1.9.22"
     id("fabric-loom") version "1.4-SNAPSHOT"
-    id("com.google.devtools.ksp") version "1.9.22-1.0.17"
 }
 
 val mod_version: String by project
@@ -37,7 +36,6 @@ dependencies {
     modImplementation("net.pitan76:mcpitanlib-fabric+${mcpitanlib_version}")
 
     modImplementation("net.mymai1208:mc-serializer-mod:0.0.3")
-    ksp("net.mymai1208:mc-serializer:0.0.3")
 }
 
 tasks {

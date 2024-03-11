@@ -5,8 +5,9 @@ import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.item.Item
 import net.minecraft.util.Identifier
 import net.mymai1208.extrapitanlib.builder.BasicBuilder
+import net.mymai1208.extrapitanlib.builder.BlockEntityBuilder
 import net.mymai1208.extrapitanlib.builder.impl.BlockBuilder
-import net.mymai1208.extrapitanlib.builder.impl.BlockEntityBuilder
+import net.mymai1208.extrapitanlib.builder.impl.BlockEntityBuilderImpl
 import net.mymai1208.extrapitanlib.builder.impl.BlockItemBuilder
 import net.mymai1208.extrapitanlib.builder.impl.ItemBuilderImpl
 import net.pitan76.mcpitanlib.api.client.registry.CompatRegistryClient
@@ -31,8 +32,8 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
         return { registeredBlocks[builder.getIdentifier()] }
     }
 
-    fun createBlockEntity(id: String, lambda: BlockEntityBuilder.() -> Unit): () -> BlockEntityType<*>? {
-        val builder = BlockEntityBuilder(id, this).apply(lambda)
+    fun createBlockEntity(id: String, lambda: BlockEntityBuilderImpl.() -> Unit): () -> BlockEntityType<*>? {
+        val builder = BlockEntityBuilderImpl(id, this).apply(lambda)
         builders.add(builder)
 
         return { registeredBlockEntities[builder.getIdentifier()] }

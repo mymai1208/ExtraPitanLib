@@ -2,13 +2,13 @@ package net.mymai1208.extrapitanlib.base
 
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.nbt.NbtCompound
-import net.mymai1208.extrapitanlib.builder.impl.BlockEntityBuilder
+import net.mymai1208.extrapitanlib.builder.impl.BlockEntityBuilderImpl
 import net.pitan76.mcpitanlib.api.event.block.TileCreateEvent
 import net.pitan76.mcpitanlib.api.tile.ExtendBlockEntity
 
-internal open class BlockEntityBase(val builder: BlockEntityBuilder, blockEntityType: BlockEntityType<*>, event: TileCreateEvent) : ExtendBlockEntity(blockEntityType, event) {
-    internal var readNbtLambda: (BlockEntityBuilder.(NbtCompound) -> Unit)? = null
-    internal var writeNbtLambda: (BlockEntityBuilder.(NbtCompound) -> Unit)? = null
+internal open class SimpleBlockEntityBase(val builder: BlockEntityBuilderImpl, blockEntityType: BlockEntityType<*>, event: TileCreateEvent) : ExtendBlockEntity(blockEntityType, event) {
+    internal var readNbtLambda: (BlockEntityBuilderImpl.(NbtCompound) -> Unit)? = null
+    internal var writeNbtLambda: (BlockEntityBuilderImpl.(NbtCompound) -> Unit)? = null
 
     override fun writeNbtOverride(nbt: NbtCompound) {
         super.writeNbtOverride(nbt)
