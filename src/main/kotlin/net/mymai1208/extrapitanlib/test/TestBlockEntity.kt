@@ -6,10 +6,8 @@ import net.pitan76.mcpitanlib.api.event.tile.TileTickEvent
 import net.pitan76.mcpitanlib.api.tile.ExtendBlockEntity
 import net.pitan76.mcpitanlib.api.tile.ExtendBlockEntityTicker
 
-class TestBlockEntity(type: BlockEntityType<*>, val event: TileCreateEvent) : ExtendBlockEntity(type, event),
-    ExtendBlockEntityTicker<TestBlockEntity> {
+class TestBlockEntity(val blockEntityType: BlockEntityType<*>, val event: TileCreateEvent) : ExtendBlockEntity(blockEntityType, event), ExtendBlockEntityTicker<TestBlockEntity> {
     override fun tick(event: TileTickEvent<TestBlockEntity>?) {
         println("Tick")
     }
-
 }

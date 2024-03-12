@@ -47,7 +47,7 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
         return this
     }
 
-    fun <T : ExtendBlockEntity> blockEntity(id: String? = null, lambda: (blockEntityType: BlockEntityType<*>, event: TileCreateEvent) -> T): BlockBuilder {
+    fun <T : ExtendBlockEntity> blockEntityWithCustom(id: String? = null, lambda: (blockEntityType: BlockEntityType<*>, event: TileCreateEvent) -> T): BlockBuilder {
         if(blockEntityId != null) {
             throw Exception("BlockEntity already exists")
         }

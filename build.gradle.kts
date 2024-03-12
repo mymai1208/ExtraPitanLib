@@ -1,7 +1,6 @@
 plugins {
-    java
     kotlin("jvm") version "1.9.22"
-    id("fabric-loom") version "1.4-SNAPSHOT"
+    id("fabric-loom") version "1.5-SNAPSHOT"
 }
 
 val mod_version: String by project
@@ -55,6 +54,8 @@ tasks {
 }
 
 java {
+    withSourcesJar()
+
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }

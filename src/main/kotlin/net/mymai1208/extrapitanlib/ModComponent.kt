@@ -21,7 +21,7 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
     internal val registeredBlockEntities = mutableMapOf<Identifier, BlockEntityType<*>>()
     internal val registeredItems = mutableMapOf<Identifier, Item>()
 
-    fun createBlock(id: String, lambda: BlockBuilder.() -> Unit): () -> Block? {
+    fun createBlock(id: String, lambda: BlockBuilder.() -> Unit): () -> Block {
         if(builders.any { it.getIdentifier().path == id }) {
             throw Exception("Block with id $id already exists")
         }
@@ -29,17 +29,17 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
         val builder = BlockBuilder(this, id).apply(lambda)
         builders.add(builder)
 
-        return { registeredBlocks[builder.getIdentifier()] }
+        return { registeredBlocks[builder.getIdentifier()] ?: throw Exception("Block with id $id not found") }
     }
 
-    fun createBlockEntity(id: String, lambda: BlockEntityBuilderImpl.() -> Unit): () -> BlockEntityType<*>? {
+    fun createBlockEntity(id: String, lambda: BlockEntityBuilderImpl.() -> Unit): () -> BlockEntityType<*> {
         val builder = BlockEntityBuilderImpl(id, this).apply(lambda)
         builders.add(builder)
 
-        return { registeredBlockEntities[builder.getIdentifier()] }
+        return { registeredBlockEntities[builder.getIdentifier()] ?: throw Exception("BlockEntity with id $id not found") }
     }
 
-    fun createItem(id: String, lambda: ItemBuilderImpl.() -> Unit): () -> Item? {
+    fun createItem(id: String, lambda: ItemBuilderImpl.() -> Unit): () -> Item {
         if(builders.any { it.getIdentifier().path == id }) {
             throw Exception("Item with id $id already exists")
         }
@@ -47,7 +47,7 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
         val builder = ItemBuilderImpl(this, id).apply(lambda)
         builders.add(builder)
 
-        return { registeredItems[builder.getIdentifier()] }
+        return { registeredItems[builder.getIdentifier()] ?: throw Exception("Item with id $id not found") }
     }
 
     private fun registerBlocks() {
@@ -73,10 +73,7 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null, val 
 
     private fun registerBlockEntities() {
         builders.filterIsInstance<BlockEntityBuilder>().forEach { builder ->
-            val blocks = builders
-                .filterIsInstance<BlockBuilder>()
-                .filter { it.getBlockEntityId() == builder.getIdentifier() }
-                .mapNotNull { registeredBlocks[it.getIdentifier()] }
+            val blocks = registeredBlocks.filter { it.key == builder.getIdentifier() }.values
 
             val blockEntity = registry?.registerBlockEntityType(builder.getIdentifier()) {
                 BlockEntityTypeBuilder.create(

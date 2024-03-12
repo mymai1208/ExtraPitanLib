@@ -27,7 +27,7 @@ object ExtraPitanLib : ModInitializer {
 
             useTick()
 
-            blockEntity { blockEntityType, event -> TestBlockEntity(blockEntityType, event) }
+            blockEntityWithCustom { blockEntityType, event -> TestBlockEntity(blockEntityType, event) }
         }
 
         test.createItem("test_item") {
