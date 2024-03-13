@@ -2,6 +2,7 @@ package net.mymai1208.extrapitanlib.builder.impl
 
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.util.Identifier
 import net.mymai1208.extrapitanlib.ModComponent
 import net.mymai1208.extrapitanlib.builder.BasicBuilder
@@ -9,13 +10,16 @@ import net.pitan76.mcpitanlib.api.block.CompatibleBlockSettings
 import net.pitan76.mcpitanlib.api.block.CompatibleMaterial
 import net.pitan76.mcpitanlib.api.block.ExtendBlock
 import net.pitan76.mcpitanlib.api.block.ExtendBlockEntityProvider
-import net.pitan76.mcpitanlib.api.event.block.TileCreateEvent
-import net.pitan76.mcpitanlib.api.tile.ExtendBlockEntity
 
 class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<ExtendBlock> {
     private var settings: CompatibleBlockSettings = CompatibleBlockSettings.of(CompatibleMaterial.STONE)
     private var blockEntityId: Identifier? = null
+
+    private var isUseBlockEntity: Boolean = false
     private var isTick: Boolean = false
+
+    internal var renderLayerMap: RenderLayer? = null
+
     private val id: Identifier = Identifier(modComponent.modId, id)
 
     fun settings(lambda: CompatibleBlockSettings.() -> Unit): BlockBuilder {
@@ -30,30 +34,13 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
         return this
     }
 
-    fun useTick(): BlockBuilder {
-        isTick = true
-
-        return this
-    }
-
-    fun blockEntity(id: String? = null, lambda: BlockEntityBuilderImpl.() -> Unit): BlockBuilder {
-        if(blockEntityId != null) {
-            throw Exception("BlockEntity already exists")
-        }
-
+    fun blockEntity(id: String? = null, isUseTick: Boolean, lambda: BlockEntityBuilder.() -> Unit): BlockBuilder {
         blockEntityId = Identifier(modComponent.modId, id ?: this.id.path)
+
+        isTick = isUseTick
+        isUseBlockEntity = true
+
         modComponent.createBlockEntity(id ?: this.id.path, lambda)
-
-        return this
-    }
-
-    fun <T : ExtendBlockEntity> blockEntityWithCustom(id: String? = null, lambda: (blockEntityType: BlockEntityType<*>, event: TileCreateEvent) -> T): BlockBuilder {
-        if(blockEntityId != null) {
-            throw Exception("BlockEntity already exists")
-        }
-
-        blockEntityId = Identifier(modComponent.modId, id ?: this.id.path)
-        modComponent.builders.add(CustomBlockEntityBuilder(modComponent, id ?: this.id.path, lambda))
 
         return this
     }
@@ -69,8 +56,14 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
         return this
     }
 
+    fun setRenderLayerMap(renderLayer: RenderLayer): BlockBuilder {
+        renderLayerMap = renderLayer
+
+        return this
+    }
+
     override fun build(): ExtendBlock {
-        if(blockEntityId == null) {
+        if(blockEntityId == null || !isUseBlockEntity) {
             return ExtendBlock(settings)
         }
 

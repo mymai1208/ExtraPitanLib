@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("jvm") version "1.9.23"
     id("fabric-loom") version "1.5-SNAPSHOT"
@@ -35,7 +37,7 @@ dependencies {
 
     modImplementation("net.pitan76:mcpitanlib-fabric+${mcpitanlib_version}")
 
-    modImplementation("net.mymai1208:mc-serializer-mod:0.0.3")
+    modImplementation("net.mymai1208:mc-serializer-mod:0.0.4")
 
     include("net.pitan76:mcpitanlib_checker-fabric:${mcpitanlib_checker_version}")
 }
@@ -65,4 +67,9 @@ java {
 
 kotlin {
     jvmToolchain(17)
+
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        freeCompilerArgs = listOf("-Xjvm-default=all")
+    }
 }
