@@ -107,12 +107,10 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null) {
     @Suppress("UNCHECKED_CAST")
     @Environment(EnvType.CLIENT)
     private fun registerBlockEntityRenderers() {
-        builders.filterIsInstance<BlockEntityBuilder>().forEach { builder ->
-            if(builder.blockEntityRenderer != null) {
-                val blockEntityType = registeredBlockEntities[builder.getIdentifier()] ?: throw Exception("BlockEntity not found")
+        builders.filterIsInstance<BlockEntityBuilder>().filter { it.blockEntityRenderer != null }.forEach { builder ->
+            val blockEntityType = registeredBlockEntities[builder.getIdentifier()] ?: throw Exception("BlockEntity not found")
 
-                CompatRegistryClient.registerBlockEntityRenderer(blockEntityType as BlockEntityType<BlockEntity>) { builder.blockEntityRenderer!! as BlockEntityRenderer<BlockEntity> }
-            }
+            CompatRegistryClient.registerBlockEntityRenderer(blockEntityType as BlockEntityType<BlockEntity>) { builder.blockEntityRenderer as BlockEntityRenderer<BlockEntity> }
         }
     }
 
