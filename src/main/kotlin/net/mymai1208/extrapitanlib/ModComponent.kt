@@ -74,7 +74,10 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null) {
 
     private fun registerBlockEntities() {
         builders.filterIsInstance<BlockEntityBuilder>().forEach { builder ->
-            val blocks = registeredBlocks.filter { it.key == builder.getIdentifier() }.values
+            val blocks = builders
+                .filterIsInstance<BlockBuilder>()
+                .filter { it.getBlockEntityId() == builder.getIdentifier() }
+                .map { registeredBlocks[it.getIdentifier()]!! }
 
             val blockEntity = registry?.registerBlockEntityType(builder.getIdentifier()) {
                 BlockEntityTypeBuilder.create(
