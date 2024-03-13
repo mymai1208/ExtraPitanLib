@@ -12,7 +12,7 @@ object ExtraPitanLib : ModInitializer {
     val REGISTRY = CompatRegistry.createRegistry("extrapitanlib")
 
     override fun onInitialize() {
-        val test = ModComponent("extrapitanlib", REGISTRY, null)
+        val test = ModComponent("extrapitanlib", REGISTRY)
 
         test.createBlock("test_block") {
             settings(CompatibleMaterial.STONE) {

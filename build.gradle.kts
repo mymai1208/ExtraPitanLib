@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     id("fabric-loom") version "1.5-SNAPSHOT"
 }
 
@@ -14,6 +14,7 @@ val loader_version: String by project
 val fabric_kotlin_version: String by project
 val fabric_api_version: String by project
 val mcpitanlib_version: String by project
+val mcpitanlib_checker_version: String by project
 
 repositories {
     mavenCentral()
@@ -35,6 +36,8 @@ dependencies {
     modImplementation("net.pitan76:mcpitanlib-fabric+${mcpitanlib_version}")
 
     modImplementation("net.mymai1208:mc-serializer-mod:0.0.3")
+
+    include("net.pitan76:mcpitanlib_checker-fabric:${mcpitanlib_checker_version}")
 }
 
 tasks {
