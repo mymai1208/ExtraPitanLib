@@ -4,7 +4,9 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap
 import net.minecraft.block.Block
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
+import net.minecraft.client.render.block.entity.BlockEntityRenderer
 import net.minecraft.item.Item
 import net.minecraft.util.Identifier
 import net.mymai1208.extrapitanlib.builder.BasicBuilder
@@ -12,6 +14,7 @@ import net.mymai1208.extrapitanlib.builder.impl.BlockBuilder
 import net.mymai1208.extrapitanlib.builder.impl.BlockEntityBuilder
 import net.mymai1208.extrapitanlib.builder.impl.BlockItemBuilder
 import net.mymai1208.extrapitanlib.builder.impl.ItemBuilderImpl
+import net.pitan76.mcpitanlib.api.client.registry.CompatRegistryClient
 import net.pitan76.mcpitanlib.api.registry.CompatRegistry
 import net.pitan76.mcpitanlib.api.tile.BlockEntityTypeBuilder
 
@@ -19,7 +22,7 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null) {
     internal val builders = mutableListOf<BasicBuilder<out Any>>()
 
     internal val registeredBlocks = mutableMapOf<Identifier, Block>()
-    internal val registeredBlockEntities = mutableMapOf<Identifier, BlockEntityType<*>>()
+    internal val registeredBlockEntities = mutableMapOf<Identifier, BlockEntityType<out BlockEntity>>()
     internal val registeredItems = mutableMapOf<Identifier, Item>()
 
     fun createBlock(id: String, lambda: BlockBuilder.() -> Unit): () -> Block {
@@ -33,8 +36,8 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null) {
         return { registeredBlocks[builder.getIdentifier()] ?: throw Exception("Block with id $id not found") }
     }
 
-    fun createBlockEntity(id: String, lambda: BlockEntityBuilder.() -> Unit): () -> BlockEntityType<*> {
-        val builder = BlockEntityBuilder(id, this).apply(lambda)
+    fun createBlockEntity(id: String, isUseTick: Boolean, lambda: BlockEntityBuilder.() -> Unit): () -> BlockEntityType<*> {
+        val builder = BlockEntityBuilder(id, isUseTick, this).apply(lambda)
         builders.add(builder)
 
         return { registeredBlockEntities[builder.getIdentifier()] ?: throw Exception("BlockEntity with id $id not found") }
@@ -101,6 +104,18 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null) {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    @Environment(EnvType.CLIENT)
+    private fun registerBlockEntityRenderers() {
+        builders.filterIsInstance<BlockEntityBuilder>().forEach { builder ->
+            if(builder.blockEntityRenderer != null) {
+                val blockEntityType = registeredBlockEntities[builder.getIdentifier()] ?: throw Exception("BlockEntity not found")
+
+                CompatRegistryClient.registerBlockEntityRenderer(blockEntityType as BlockEntityType<BlockEntity>) { builder.blockEntityRenderer!! as BlockEntityRenderer<BlockEntity> }
+            }
+        }
+    }
+
     fun registerAll() {
         if(registry == null) {
             throw Exception("Registry is not initialized")
@@ -115,5 +130,6 @@ class ModComponent(val modId: String, val registry: CompatRegistry? = null) {
     @Environment(EnvType.CLIENT)
     fun registerAllClient() {
         registerRenderLayers()
+        registerBlockEntityRenderers()
     }
 }

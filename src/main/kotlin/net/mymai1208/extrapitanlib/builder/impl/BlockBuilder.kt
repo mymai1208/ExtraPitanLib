@@ -40,7 +40,7 @@ class BlockBuilder(val modComponent: ModComponent, id: String) : BasicBuilder<Ex
         isTick = isUseTick
         isUseBlockEntity = true
 
-        modComponent.createBlockEntity(id ?: this.id.path, lambda)
+        modComponent.createBlockEntity(id ?: this.id.path, isTick, lambda)
 
         return this
     }
